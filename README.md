@@ -24,5 +24,3 @@ HeunL00log
 HeunS0gamma1
 HeunS00gamma1
 
-Description of the algorithms can be found in arxiv.org:
-O.V. Motygin, On evaluation of the Heun's functions, 2015
