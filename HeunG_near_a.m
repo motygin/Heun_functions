@@ -44,3 +44,4 @@ function [val,dval,err,numb,wrnmsg] = HeunG_near_a(a,q,alpha,beta,gamma,delta,z,
   end
   
 end
+
