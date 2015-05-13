@@ -44,3 +44,4 @@ function [val,dval,err,numb,wrnmsg] = HeunG_near_infty(a,q,alpha,beta,gamma,delt
   end
   
 end
+
