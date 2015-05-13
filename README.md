@@ -1,8 +1,7 @@
 # Heun_functions
 Matlab/Octave code for evaluation of the Heun functions
 
-tested in the Octave numerical environment
-intended to be Matlab compatible 
+commitment not completed !
 
 The basic functions to use:
 
@@ -23,4 +22,7 @@ HeunL00
 HeunL00log
 HeunS0gamma1
 HeunS00gamma1
+
+tested in the Octave numerical environment
+intended to be Matlab compatible 
 
