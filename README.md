@@ -23,6 +23,6 @@ HeunL00log
 HeunS0gamma1
 HeunS00gamma1
 
-tested in the Octave numerical environment
+tested in the Octave numerical environment,
 intended to be Matlab compatible 
 
