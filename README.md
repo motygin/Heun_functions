@@ -4,6 +4,9 @@ Matlab/Octave code for evaluation of the Heun functions
 The basic functions to use:
 
 HeunL0:  local Heun function, equal to 1 at z=0
+
+HeunLmv:  multi-valued function, integration along an arbitrary path connecting 0 and z
+
 HeunS0:  second local solution at z=0
 
 HeunL, HeunS: with improvement near singularities z=1, a, infinity
