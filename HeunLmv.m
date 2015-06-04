@@ -22,7 +22,7 @@
 %
 % Oleg V. Motygin, copyright 2015, license: GNU GPL v3
 %
-% 30 May 2015
+% 04 June 2015
 %
 function [val,dval,err,numb,wrnmsg] = HeunLmv(a,q,alpha,beta,gamma,delta,path2z)
 
@@ -43,7 +43,7 @@ function [val,dval,err,numb,wrnmsg] = HeunLmv(a,q,alpha,beta,gamma,delta,path2z)
     wrnmsg = 'HeunLmv: path2z should start from zero; '; 
     val = NaN; dval = NaN; err = NaN; numb = NaN;    
 
-  elseif (min(min(abs(repmat(path2z(2:end),3,1)-repmat([0;1;a],1,length(path2z)-1))))<eps)
+  elseif (dist2sing(path2z,[1,a])<10*eps)||(dist2sing(path2z(2:end),[0])<10*eps)
 
     wrnmsg = 'HeunLmv: path2z is too close to one of the singular points; '; 
     val = NaN; dval = NaN; err = NaN; numb = NaN;
@@ -135,7 +135,41 @@ function [val,dval,err,numb,wrnmsg] = HeunLmv(a,q,alpha,beta,gamma,delta,path2z)
       val = H0; dval = dH0; numb = numbsum; err = errsum;
       
     end
-  end
+  end  
 end
 
+% minimal distance from path to singular points
+function dmin = dist2sing(path,singpts)
 
+  dmin = NaN;
+  for k=1:length(path)-1
+    for n=1:length(singpts)
+      d = dist(singpts(n), path(k), path(k+1));
+      if ((k==1)&&(n==1))||(d<dmin)
+        dmin = d;
+      end
+    end
+  end 
+end
+
+% distance from point P to AB
+function [d,isinside] = dist(P, A, B)
+    
+    isinside = true;
+    a = abs(P-A);
+    b = abs(P-B);
+    c = abs(A-B);
+    
+    if(a^2>=b^2+c^2)
+      isinside = false; d = b; return;
+    end
+    if(b^2>=a^2+c^2)
+      isinside = false; d = b; return;
+    end
+    
+    p = (a+b+c)/2;
+    s = sqrt((p-a)*(p-b)*(p-c)*p);
+    
+    d = s*2/c;
+
+end
