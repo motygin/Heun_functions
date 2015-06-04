@@ -21,7 +21,7 @@
 %
 % Oleg V. Motygin, copyright 2015, license: GNU GPL v3
 %
-% 17 April 2015
+% 04 June 2015
 %
 function [val,dval,err,numb,wrnmsg] = HeunGfromZ0(a,q,alpha,beta,gamma,delta,z,Z0,H0,dH0)
   
@@ -39,11 +39,11 @@ function [val,dval,err,numb,wrnmsg] = HeunGfromZ0(a,q,alpha,beta,gamma,delta,z,Z
   
   if (abs(z-Z0)>=R)
 
-    wrnmsg = strcat('z is out of the convergence radius = ',num2str(R)); val = NaN; dval = NaN; err = NaN; numb = NaN;
+    wrnmsg = strcat('HeunGfromZ0: z is out of the convergence radius = ',num2str(R)); val = NaN; dval = NaN; err = NaN; numb = NaN;
 
   elseif ((min(abs(z-[1 a]))<eps) || (min(abs(Z0-[1 a]))<eps))
 
-    wrnmsg = 'z or Z0 is too close to the singular points'; 
+    wrnmsg = 'HeunGfromZ0: z or Z0 is too close to the singular points'; 
     val = NaN; dval = NaN; err = NaN; numb = NaN;
 
   elseif (z==Z0)
