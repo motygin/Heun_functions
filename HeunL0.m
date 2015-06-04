@@ -22,7 +22,7 @@
 %
 % Oleg V. Motygin, copyright 2015, license: GNU GPL v3
 %
-% 28 April 2015
+% 04 June 2015
 %
 function [val,dval,err,numb,wrnmsg] = HeunL0(a,q,alpha,beta,gamma,delta,z)
 
