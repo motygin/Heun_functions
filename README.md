@@ -9,6 +9,8 @@ HeunLmv:  multi-valued function, integration along an arbitrary path connecting 
 
 HeunS0:  second local solution at z=0
 
+HeunSmv:  multi-valued function, integration along an arbitrary path connecting 0 and z
+
 HeunL, HeunS: with improvement near singularities z=1, a, infinity
 
 HeunOpts: tuning of internal parameters 
@@ -23,6 +25,7 @@ HeunL00
 HeunL00log
 HeunS0gamma1
 HeunS00gamma1
+HeunSmvgamma1
 
 tested in the Octave numerical environment,
 intended to be Matlab compatible 
