@@ -20,11 +20,9 @@
 %
 % Oleg V. Motygin, copyright 2015, license: GNU GPL v3
 %
-% 13 May 2015
+% 05 June 2015
 %
 function [val,dval,err,numb,wrnmsg] = HeunS(a,q,alpha,beta,gamma,delta,z,varargin)
-
-  warning('off','Octave:nested-functions-coerced');
 
   if (real(z/a)>=1)&&(imag(z/a)==0)||(real(z)>=1)&&(imag(z)==0)
     
