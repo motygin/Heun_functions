@@ -27,7 +27,7 @@
 %
 % Oleg V. Motygin, copyright 2015, license: GNU GPL v3
 %
-% 29 April 2015
+% 05 June 2015
 %
 function [val,dval,err,numb,wrnmsg] = HeunLS(numfunc,a,q,alpha,beta,gamma,delta,z,varargin)
 
@@ -46,7 +46,7 @@ function [val,dval,err,numb,wrnmsg] = HeunLS(numfunc,a,q,alpha,beta,gamma,delta,
   if isempty(Heun_proxcoinf)
     HeunOpts();
   end
-
+  
   Heun0 = @HeunL0;
 
   if numfunc~=1
@@ -113,18 +113,10 @@ end
 
 function [val,dval,err,numb,wrnmsg,failed] = HeunLSnearsing(numfunc,Heun0,HeunG_nearsing,singpt,midpoint,memlimit,a,q,alpha,beta,gamma,delta,z)
 
-% the global definition is needed due to Octave bug #42126
-% the same temporary solution in functions extrdatfromsav and keepdattosav
-  if exist('OCTAVE_VERSION', 'builtin') ~= 0
-    global savdata;
-  else
-    persistent savdata;
-  end
-
   val = NaN; dval = NaN; err = NaN; numb = NaN; wrnmsg = '';
   
   [A1,A2,errco,consts_known] = extrdatfromsav(numfunc,a,q,alpha,beta,gamma,delta,singpt);
-
+  
   if ~consts_known
 
     [val1,dval1,err1,numb1,wrnmsg1] = HeunG_nearsing(a,q,alpha,beta,gamma,delta,midpoint,1,0);
@@ -151,7 +143,17 @@ function [val,dval,err,numb,wrnmsg,failed] = HeunLSnearsing(numfunc,Heun0,HeunG_
   if ~failed
     
     [val1,dval1,err1,numb1,wrnmsg1] = HeunG_nearsing(a,q,alpha,beta,gamma,delta,z,1,0);
+    if ~isempty(wrnmsg1)
+       if abs(A1)<errco
+          wrnmsg1 = ''; val1 = 0; dval1 = 0; err1 = 0; 
+       end
+    end
     [val2,dval2,err2,numb2,wrnmsg2] = HeunG_nearsing(a,q,alpha,beta,gamma,delta,z,0,1);
+    if ~isempty(wrnmsg2)
+       if abs(A2)<errco
+          wrnmsg2 = ''; val2 = 0; dval2 = 0; err2 = 0; 
+       end
+    end
     wrnmsg = strcat(wrnmsg,wrnmsg1,wrnmsg2);
 
     val = A1*val1 + A2*val2; dval = A1*dval1 + A2*dval2;
@@ -165,49 +167,46 @@ function [val,dval,err,numb,wrnmsg,failed] = HeunLSnearsing(numfunc,Heun0,HeunG_
   
   isls0 = failed||isnan(val);
   
-  function [A1,A2,errco,consts_known] = extrdatfromsav(numfunc,a,q,alpha,beta,gamma,delta,singpt)
-% the global definition is needed due to Octave bug #42126
-    if exist('OCTAVE_VERSION', 'builtin') ~= 0
-      global savdata;
-    end
+end
+  
+function [A1,A2,errco,consts_known] = extrdatfromsav(numfunc,a,q,alpha,beta,gamma,delta,singpt)
 
-    A1 = NaN; A2 = NaN; errco=NaN; consts_known = false;
-    if length(savdata)~=0
-      for k=1:length(savdata)
-        if (savdata(k).numfunc==numfunc)&&strcmp(savdata(k).singpt,singpt)&&(savdata(k).a==a)&&...
-           (savdata(k).q==q)&&(savdata(k).alpha==alpha)&&(savdata(k).beta==beta)&&...
-           (savdata(k).gamma==gamma)&&(savdata(k).delta==delta)
-          A1=savdata(k).A1;
-          A2=savdata(k).A2;
-          errco=savdata(k).errco;
-          consts_known = true;
-          break;
-        end
+  global savdata;
+
+  A1 = NaN; A2 = NaN; errco=NaN; consts_known = false;
+  if length(savdata)~=0
+    for k=1:length(savdata)
+      if (savdata(k).numfunc==numfunc)&&strcmp(savdata(k).singpt,singpt)&&(savdata(k).a==a)&&...
+         (savdata(k).q==q)&&(savdata(k).alpha==alpha)&&(savdata(k).beta==beta)&&...
+         (savdata(k).gamma==gamma)&&(savdata(k).delta==delta)
+        A1=savdata(k).A1;
+        A2=savdata(k).A2;
+        errco=savdata(k).errco;
+        consts_known = true;
+        break;
       end
     end
   end
+end
 
-  function keepdattosav(numfunc,a,q,alpha,beta,gamma,delta,errco,A1,A2,singpt,memlimit)
-% the global definition is needed due to Octave bug #42126
-    if exist('OCTAVE_VERSION', 'builtin') ~= 0
-      global savdata;
-    end
+function keepdattosav(numfunc,a,q,alpha,beta,gamma,delta,errco,A1,A2,singpt,memlimit)
+ 
+  global savdata;
 
-    if length(savdata)==0
-      savdata=struct('numfunc',numfunc,'singpt',singpt,'a',a,'q',q,'alpha',alpha,...
+  if length(savdata)==0
+    savdata=struct('numfunc',numfunc,'singpt',singpt,'a',a,'q',q,'alpha',alpha,...
+      'beta',beta,'gamma',gamma,'delta',delta,'errco',errco,'A1',A1,'A2',A2);
+  else
+    if length(savdata)<=memlimit
+      savdata(end+1)=struct('numfunc',numfunc,'singpt',singpt,'a',a,'q',q,'alpha',alpha,...
         'beta',beta,'gamma',gamma,'delta',delta,'errco',errco,'A1',A1,'A2',A2);
     else
-      if length(savdata)<=memlimit
-        savdata(end+1)=struct('numfunc',numfunc,'singpt',singpt,'a',a,'q',q,'alpha',alpha,...
-          'beta',beta,'gamma',gamma,'delta',delta,'errco',errco,'A1',A1,'A2',A2);
-      else
-        savdata(1).numfunc=numfunc; savdata(1).singpt=singpt; savdata(1).a=a;
-        savdata(1).q=q; savdata(1).alpha=alpha; savdata(1).beta=beta;
-        savdata(1).gamma=gamma; savdata(1).delta=delta;
-        savdata(1).errco=errco; savdata(1).A1=A1; savdata(1).A2=A2;
-        savdata = shift(savdata,-1);
-      end  
-    end
+      savdata(1).numfunc=numfunc; savdata(1).singpt=singpt; savdata(1).a=a;
+      savdata(1).q=q; savdata(1).alpha=alpha; savdata(1).beta=beta;
+      savdata(1).gamma=gamma; savdata(1).delta=delta;
+      savdata(1).errco=errco; savdata(1).A1=A1; savdata(1).A2=A2;
+      savdata = shift(savdata,-1);
+    end  
   end
-  
 end
+
