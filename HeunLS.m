@@ -37,13 +37,9 @@ function [val,dval,err,numb,wrnmsg] = HeunLS(numfunc,a,q,alpha,beta,gamma,delta,
     memlimit = 500;
   end
 
-  global Heun_proxco Heun_proxcoinf;
+  global Heun_proxco1st Heun_proxcoinf1st Heun_proxco Heun_proxcoinf;
   
-  if isempty(Heun_proxco)
-    HeunOpts();
-  end
-
-  if isempty(Heun_proxcoinf)
+  if isempty(Heun_proxco1st)||isempty(Heun_proxco)||isempty(Heun_proxcoinf1st)||isempty(Heun_proxcoinf)
     HeunOpts();
   end
   
@@ -74,8 +70,9 @@ function [val,dval,err,numb,wrnmsg] = HeunLS(numfunc,a,q,alpha,beta,gamma,delta,
     end 
 
     midpoint = a*0.5 + 1i/sqrt(2)*sdir;
+    impev = abs(z-a)<Heun_proxco1st*Ra;
 
-    [val,dval,err,numb,wrnmsg,failed] = HeunLSnearsing(numfunc,Heun0,@HeunG_near_a,singpt,midpoint,memlimit,a,q,alpha,beta,gamma,delta,z);
+    [val,dval,err,numb,wrnmsg,failed] = HeunLSnearsing(numfunc,Heun0,@HeunG_near_a,singpt,midpoint,memlimit,impev,a,q,alpha,beta,gamma,delta,z);
 
   elseif abs(z-1)<Heun_proxco*R1
 
@@ -90,7 +87,9 @@ function [val,dval,err,numb,wrnmsg] = HeunLS(numfunc,a,q,alpha,beta,gamma,delta,
     end 
 
     midpoint = 0.5 + 1i/sqrt(2)*sdir;
-    [val,dval,err,numb,wrnmsg,failed] = HeunLSnearsing(numfunc,Heun0,@HeunG_near_1,singpt,midpoint,memlimit,a,q,alpha,beta,gamma,delta,z);
+    impev = abs(z-1)<Heun_proxco1st*R1;
+
+    [val,dval,err,numb,wrnmsg,failed] = HeunLSnearsing(numfunc,Heun0,@HeunG_near_1,singpt,midpoint,memlimit,impev,a,q,alpha,beta,gamma,delta,z);
 
   elseif abs(z)>Heun_proxcoinf*Rinf
 
@@ -99,9 +98,10 @@ function [val,dval,err,numb,wrnmsg] = HeunLS(numfunc,a,q,alpha,beta,gamma,delta,
     singpt = strcat('I',num2str(idx));
     midarg = (ls(idx)+ls(idx+1))/2;
 
-    midpoint = 0.5 * Heun_proxcoinf*Rinf * exp(1i*midarg);
+    midpoint = Heun_proxcoinf * Rinf * exp(1i*midarg);
+    impev = abs(z)>Heun_proxcoinf1st*Rinf;
 
-    [val,dval,err,numb,wrnmsg,failed] = HeunLSnearsing(numfunc,Heun0,@HeunG_near_infty,singpt,midpoint,memlimit,a,q,alpha,beta,gamma,delta,z);
+    [val,dval,err,numb,wrnmsg,failed] = HeunLSnearsing(numfunc,Heun0,@HeunG_near_infty,singpt,midpoint,impev,memlimit,a,q,alpha,beta,gamma,delta,z);
 
   end
 
@@ -111,13 +111,13 @@ function [val,dval,err,numb,wrnmsg] = HeunLS(numfunc,a,q,alpha,beta,gamma,delta,
 
 end
 
-function [val,dval,err,numb,wrnmsg,failed] = HeunLSnearsing(numfunc,Heun0,HeunG_nearsing,singpt,midpoint,memlimit,a,q,alpha,beta,gamma,delta,z)
+function [val,dval,err,numb,wrnmsg,failed] = HeunLSnearsing(numfunc,Heun0,HeunG_nearsing,singpt,midpoint,memlimit,impev,a,q,alpha,beta,gamma,delta,z)
 
   val = NaN; dval = NaN; err = NaN; numb = NaN; wrnmsg = '';
   
   [A1,A2,errco,consts_known] = extrdatfromsav(numfunc,a,q,alpha,beta,gamma,delta,singpt);
   
-  if ~consts_known
+  if ~consts_known && impev
 
     [val1,dval1,err1,numb1,wrnmsg1] = HeunG_nearsing(a,q,alpha,beta,gamma,delta,midpoint,1,0);
     [val2,dval2,err2,numb2,wrnmsg2] = HeunG_nearsing(a,q,alpha,beta,gamma,delta,midpoint,0,1);
@@ -138,7 +138,7 @@ function [val,dval,err,numb,wrnmsg,failed] = HeunLSnearsing(numfunc,Heun0,HeunG_
 
   end
   
-  failed = isnan(A1)||isnan(A2);
+  failed = isnan(A1)||isnan(A2)||(~consts_known&&~impev);
   
   if ~failed
     
@@ -165,7 +165,7 @@ function [val,dval,err,numb,wrnmsg,failed] = HeunLSnearsing(numfunc,Heun0,HeunG_
     end
   end
   
-  isls0 = failed||isnan(val);
+  failed = failed||isnan(val);
   
 end
   
