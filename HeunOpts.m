@@ -1,6 +1,7 @@
 % Change internal parameters of HeunL, HeunL00, HeunL00log, HeunGfromZ0
 %
 % Usage: HeunOpts('cont_coef',Heun_cont_coef,'klimit',Heun_klimit,
+%                 'proxco1st',Heun_proxco_1st,'proxcoinf1st',Heun_proxcoinf_1st)
 %                 'proxco',Heun_proxco,'proxcoinf',Heun_proxcoinf)
 %
 % parameters are optional
@@ -20,17 +21,18 @@
 % HeunS00gamma1; it is the maximum number of power series' terms.
 % Default value is 1000 
 %
-% Heun_proxco and Heun_proxcoinf are used in HeunLS; they specify relative proximity
-% to singular point where special representation is used
-% By default Heun_proxco = 0.05; Heun_proxcoinf = 5 
+% Heun_proxco1st, Heun_proxcoinf1st, Heun_proxco, Heun_proxcoinf are used in HeunLS;
+% they specify relative proximity to singular point where special representation is used
+% "1st" for the case when the matching coefficients are not known 
+% By default Heun_proxco1st = 0.05; Heun_proxcoinf1st = 10; Heun_proxco = 0.25; Heun_proxcoinf = 2 
 %
 % Oleg V. Motygin, copyright 2015, license: GNU GPL v3
 %
-% 14 April 2015
+% 05 June 2015
 %
 function HeunOpts(varargin)
 
-  global Heun_cont_coef Heun_klimit Heun_proxco Heun_proxcoinf;
+  global Heun_cont_coef Heun_klimit Heun_proxco Heun_proxcoinf Heun_proxco1st Heun_proxcoinf1st;
   
   [reg, props] = parseparams(varargin);
   opts = cell2struct(props(2:2:end),props(1:2:end),2);
@@ -59,27 +61,51 @@ function HeunOpts(varargin)
     end
   end
   
+  if isfield(opts,'proxco1st')
+    if isempty(opts.proxco1st)
+      Heun_proxco1st = 0.05;
+    else
+      Heun_proxco1st = opts.proxco1st;
+    end
+  else
+    if isempty(Heun_proxco1st)
+      Heun_proxco1st = 0.05;
+    end
+  end
+  
   if isfield(opts,'proxco')
     if isempty(opts.proxco)
-      Heun_proxco = 0.05;
+      Heun_proxco = 0.25;
     else
       Heun_proxco = opts.proxco;
     end
   else
     if isempty(Heun_proxco)
-      Heun_proxco = 0.05;
+      Heun_proxco = 0.25;
+    end
+  end
+
+  if isfield(opts,'proxcoinf1st')
+    if isempty(opts.proxcoinf1st)
+      Heun_proxcoinf1st = 5;
+    else
+      Heun_proxcoinf1st = opts.proxcoinf1st;
+    end
+  else
+    if isempty(Heun_proxcoinf1st)
+      Heun_proxcoinf1st = 5;
     end
   end
   
   if isfield(opts,'proxcoinf')
     if isempty(opts.proxcoinf)
-      Heun_proxcoinf = 5;
+      Heun_proxcoinf = 2;
     else
       Heun_proxcoinf = opts.proxcoinf;
     end
   else
     if isempty(Heun_proxcoinf)
-      Heun_proxcoinf = 5;
+      Heun_proxcoinf = 2;
     end
   end
   
