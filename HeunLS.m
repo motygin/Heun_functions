@@ -27,7 +27,7 @@
 %
 % Oleg V. Motygin, copyright 2015, license: GNU GPL v3
 %
-% 05 June 2015
+% 10 June 2015
 %
 function [val,dval,err,numb,wrnmsg] = HeunLS(numfunc,a,q,alpha,beta,gamma,delta,z,varargin)
 
@@ -69,7 +69,7 @@ function [val,dval,err,numb,wrnmsg] = HeunLS(numfunc,a,q,alpha,beta,gamma,delta,
       end
     end 
 
-    midpoint = a*0.5 + 1i/sqrt(2)*sdir;
+    midpoint = a*0.5 + 0.70710678i*sdir;
     impev = abs(z-a)<Heun_proxco1st*Ra;
 
     [val,dval,err,numb,wrnmsg,failed] = HeunLSnearsing(numfunc,Heun0,@HeunG_near_a,singpt,midpoint,memlimit,impev,a,q,alpha,beta,gamma,delta,z);
@@ -86,7 +86,7 @@ function [val,dval,err,numb,wrnmsg] = HeunLS(numfunc,a,q,alpha,beta,gamma,delta,
       end
     end 
 
-    midpoint = 0.5 + 1i/sqrt(2)*sdir;
+    midpoint = 0.5 + 0.70710678i*sdir;
     impev = abs(z-1)<Heun_proxco1st*R1;
 
     [val,dval,err,numb,wrnmsg,failed] = HeunLSnearsing(numfunc,Heun0,@HeunG_near_1,singpt,midpoint,memlimit,impev,a,q,alpha,beta,gamma,delta,z);
