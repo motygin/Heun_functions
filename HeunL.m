@@ -19,7 +19,7 @@
 %
 % Oleg V. Motygin, copyright 2015, license: GNU GPL v3
 %
-% 05 June 2015
+% 15 June 2015
 %
 function [val,dval,err,numb,wrnmsg] = HeunL(a,q,alpha,beta,gamma,delta,z,varargin)
 
@@ -29,11 +29,15 @@ function [val,dval,err,numb,wrnmsg] = HeunL(a,q,alpha,beta,gamma,delta,z,varargi
     gamma = ceil(gamma-5*eps);
   end
 
-  if (real(z/a)>=1)&&(imag(z/a)==0)||(real(z)>=1)&&(imag(z)==0)||...
-    (isnonpositivegamma&&(imag(z)==0)&&(sign(z)<0))
+  if (real(z/a)>=1)&&(angle(z/a)==0)||(real(z)>=1)&&(angle(z)==0)||...
+    (isnonpositivegamma&&(angle(z)==0)&&(sign(real(z))<0))
     
     wrnmsg = 'HeunL: z belongs to a possible branch cut; '; 
     val = NaN; dval = NaN; err = NaN; numb = NaN;
+    
+  elseif abs(angle(z))==pi
+    
+    [val,dval,err,numb,wrnmsg] = HeunL0(a,q,alpha,beta,gamma,delta,z);
     
   else
 
