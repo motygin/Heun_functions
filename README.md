@@ -30,3 +30,6 @@ HeunSmvgamma1
 tested in the Octave numerical environment,
 intended to be Matlab compatible 
 
+Ref.: http://arxiv.org/abs/1506.03848
+
+
