@@ -28,14 +28,16 @@
 %
 % Oleg V. Motygin, copyright 2015, license: GNU GPL v3
 %
-% 05 June 2015
+% 05 June 2015, correction on 23 September 2023
 %
 function HeunOpts(varargin)
 
   global Heun_cont_coef Heun_klimit Heun_proxco Heun_proxcoinf Heun_proxco1st Heun_proxcoinf1st;
   
-  [reg, props] = parseparams(varargin);
-  opts = cell2struct(props(2:2:end),props(1:2:end),2);
+% 23.09.23
+  props = varargin(:);
+  opts = cell2struct(props(2:2:end),props(1:2:end),1);
+%
   
   if isfield(opts,'cont_coef')
     if isempty(opts.cont_coef)
